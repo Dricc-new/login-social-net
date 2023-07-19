@@ -8,7 +8,8 @@ import { LoginUserDTO } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectRepository(User) private userRepository: Repository<User>,
+    constructor(
+        @InjectRepository(User) private userRepository: Repository<User>,
         private encoderService: EncoderService) { }
 
     async registerUser(user: RegisterUserDTO) {
