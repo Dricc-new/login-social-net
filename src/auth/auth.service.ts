@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { RegisterUserDTO } from './dto/register-user.dto';
 import { EncoderService } from './encoder.service';
 import { LoginUserDTO } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
-        private encoderService: EncoderService) { }
+        private encoderService: EncoderService,
+        private jwtService: JwtService) { }
 
     async registerUser(user: RegisterUserDTO) {
         const { name, email, password } = user;
@@ -32,16 +35,18 @@ export class AuthService {
         })
     }
 
-    async login(loginUser: LoginUserDTO): Promise<string> {
+    async login(loginUser: LoginUserDTO): Promise<{ accessToken: string }> {
         const { email, password } = loginUser
 
         //search user by email on database
         const user = await this.userRepository.findOneBy({ email: email })
-        
+
         //if the user exists and the password is correct, return the account; otherwise return an error
         if (user && (await this.encoderService.checkPassword(password, user.password))) {
-            return 'jwt';
-        }else{
+            const payload: JwtPayload = { id: user.id, email: user.email, active: user.active }
+            const accessToken = this.jwtService.sign(payload)
+            return { accessToken }
+        } else {
             throw new UnauthorizedException('The wrong email or password')
         }
     }

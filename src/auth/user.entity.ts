@@ -14,15 +14,18 @@ export class User {
     @Column({ length: 100 })
     password: string
 
-    @Column({ type: 'boolean', default: false })
+    @Column({ type: 'boolean', default: false, name: 'email_verified' })
     emailVerified: boolean
 
     @Column({ type: 'boolean', default: true })
     active: boolean
 
-    @CreateDateColumn()
+    @Column({ type: 'uuid', unique: true, name: 'activation_token' })
+    activationToken: boolean
+
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date
 
-    @UpdateDateColumn()
-    updateAt: Date
+    @UpdateDateColumn({ name: 'update_at' })
+    updatedAt: Date
 }
